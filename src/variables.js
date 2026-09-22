@@ -13,6 +13,43 @@ export const slug = (s) =>
 		.replace(/[^a-z0-9]+/g, '_')
 		.replace(/^_+|_+$/g, '') || 'unnamed'
 
+/**
+ * 🚨 Two names that differ ONLY in punctuation produce the SAME variable id — "Court 1",
+ * "Court-1" and "Court #1" all become court_1. Whichever is written last wins, so a button
+ * reading $(sgpro:sb_court_1_score1) quietly shows the other scoreboard's score.
+ *
+ * ⛔ Renaming the ids to make them unique would be worse than the problem: the id is what a
+ * button refers to, so it would change under buttons the user has already built, and it would
+ * change again the moment anything is reordered or renamed.
+ *
+ * So: leave the ids alone and SAY SO. A warning in the connection log names both offenders and
+ * the id they are fighting over, which turns a silently wrong number into something fixable
+ * (rename one of them in the app).
+ */
+export function warnOnSlugCollisions(self, groups) {
+	const clashes = []
+	for (const [what, names] of Object.entries(groups)) {
+		const seen = new Map()
+		for (const n of names) {
+			const k = slug(n)
+			if (seen.has(k) && seen.get(k) !== n) clashes.push(`${what} "${seen.get(k)}" and "${n}" both become "${k}"`)
+			else seen.set(k, n)
+		}
+	}
+	// Only speak when it changes, or every state update would repeat the same warning.
+	const sig = clashes.join(' | ')
+	if (sig === self._slugWarnSig) return
+	self._slugWarnSig = sig
+	if (clashes.length) {
+		self.log(
+			'warn',
+			'Names that differ only in punctuation share one variable id, so one overwrites the other: ' +
+				clashes.join('; ') +
+				'. Rename one of each pair in StreamGraphics Pro to tell them apart.'
+		)
+	}
+}
+
 const pad = (n) => String(n).padStart(2, '0')
 
 /** Baseball totals are the sum of the per-inning line score. */
@@ -78,6 +115,10 @@ export function prompterSection(p, clockOffset) {
 }
 
 export function updateVariableDefinitions(self) {
+	warnOnSlugCollisions(self, {
+		Scoreboards: (self.state.scoreboards ?? []).map((b) => b.name),
+		'Library presets': (self.state.shows ?? []).map((s) => s.name),
+	})
 	const defs = [
 		{ variableId: 'connection', name: 'Connection to StreamGraphics Pro' },
 		{ variableId: 'app_version', name: 'App version on the show computer' },

@@ -1,6 +1,6 @@
 {
   "name": "companion-module-manhattanbeachstudios-streamgraphicspro",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Bitfocus Companion module for StreamGraphics Pro — lower thirds, scoreboards, timers, slides and a teleprompter for OBS, vMix and any browser source.",
   "type": "module",
   "main": "main.js",

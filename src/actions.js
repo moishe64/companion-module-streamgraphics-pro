@@ -101,6 +101,33 @@ export function updateActions(self) {
 				return self.command(`/api/preset/row?name=${q(await name(a.options.name))}&n=${n}`)
 			},
 		},
+		// What happens BETWEEN one row and the next. Stepping a deck does not need this — the
+		// style is a property of the deck — but setting it from a button lets one section of a
+		// show dip to black while the rest cross fades.
+		preset_change: {
+			name: 'Library preset: set the change style (cross fade, dip to colour, slide)',
+			options: [
+				presetField,
+				{
+					type: 'dropdown',
+					label: 'Between rows',
+					id: 'mode',
+					default: 'crossfade',
+					choices: [
+						{ id: 'crossfade', label: 'Cross fade' },
+						{ id: 'fadeblack', label: 'Fade through black' },
+						{ id: 'fadewhite', label: 'Fade through white' },
+						{ id: 'pushleft', label: 'Slide left' },
+						{ id: 'pushright', label: 'Slide right' },
+						{ id: 'cut', label: 'Cut (shows the background for a frame)' },
+						{ id: 'reanimate', label: 'Off then on (shows the background)' },
+					],
+					tooltip: 'The first five keep a picture on screen the whole way through the change',
+				},
+			],
+			callback: async (a) =>
+				self.command(`/api/preset/change?name=${q(await name(a.options.name))}&mode=${q(a.options.mode)}`),
+		},
 
 		// ---- Bullet builds / slide decks inside a preset ----
 		// The layer box is optional: leave it blank and the first bullets (or slides) layer in

@@ -5,7 +5,7 @@
   "name": "StreamGraphics Pro",
   "shortname": "streamgraphicspro",
   "description": "Live broadcast graphics — lower thirds, scoreboards, timers, slides and a teleprompter. Runs on the show computer; drive it from Companion.",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "license": "MIT",
   "repository": "https://github.com/bitfocus/companion-module-manhattanbeachstudios-streamgraphicspro",
   "bugs": "https://github.com/bitfocus/companion-module-manhattanbeachstudios-streamgraphicspro/issues",
@@ -15,9 +15,7 @@
       "email": "mark@streamgraphicspro.com"
     }
   ],
-  "legacyIds": [
-    "streamgraphics-pro"
-  ],
+  "legacyIds": [],
   "runtime": {
     "type": "node22",
     "api": "nodejs-ipc",

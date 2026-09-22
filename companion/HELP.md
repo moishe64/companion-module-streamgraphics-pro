@@ -107,6 +107,19 @@ Names become variable ids in lower case with anything awkward turned into an
 underscore — `Court 1` becomes `court_1`, `Marcus Bell — Head Coach` becomes
 `marcus_bell_head_coach`. The full list is in Companion's variables panel.
 
+**Give two things names that differ by more than punctuation.** Because every
+run of punctuation and spacing collapses to a single underscore, `Court 1`,
+`Court-1` and `Court #1` all arrive at the same id — `court_1`. If two
+scoreboards or two library presets land on the same id they share one variable,
+and whichever the app lists last is the one you will see, so a button can end up
+showing the other one's number. The same goes for the ready-made presets in the
+button list, which are keyed the same way.
+
+Nothing is renamed automatically, because the id is what your buttons point at
+and moving it would break buttons you have already built. Instead the connection
+log warns you and names both culprits — so if a button is showing the wrong
+score, look there first.
+
 ### If it stops working mid-show
 
 The module reconnects on its own every few seconds, and picks straight back up

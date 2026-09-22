@@ -135,6 +135,29 @@ await self.actions.preset_alloff.callback({ options: {} })
 await nextState()
 ok('all off clears everything', Number(self.vars.presets_on) === 0)
 
+// --- what happens BETWEEN rows (cross fade, dip to colour, slide) ---------
+// 🚨 Driven through the module's own action, not by calling the API directly — the point is that
+//    the button a user builds reaches the app, so the option id and the URL have to line up too.
+const modeOf = () => self.state.shows.find((s) => s.name === show.name)?.rowTransition
+ok('the change-style action exists', !!self.actions.preset_change)
+for (const m of ['fadeblack', 'pushright', 'crossfade']) {
+	await self.actions.preset_change.callback({ options: { name: show.name, mode: m } })
+	await nextState()
+	ok(`change style reaches the app: ${m}`, modeOf() === m, String(modeOf()))
+}
+// ⛔ control: a style the app does not know must be REFUSED and leave the deck alone, or the
+//    checks above would pass on a module that sends anything at all.
+const modeBefore = modeOf()
+const badMode = await self.actions.preset_change.callback({ options: { name: show.name, mode: 'sparkle' } })
+await nextState()
+ok('⛔ an unknown style is refused and changes nothing', badMode === false && modeOf() === modeBefore, `${badMode} / ${modeOf()}`)
+ok(
+	'⛔ every style in the dropdown is one the app accepts',
+	self.actions.preset_change.options
+		.find((o) => o.id === 'mode')
+		.choices.every((c) => ['crossfade', 'fadeblack', 'fadewhite', 'pushleft', 'pushright', 'cut', 'reanimate'].includes(c.id))
+)
+
 // --- timer ---------------------------------------------------------------
 await self.actions.timer_set.callback({ options: { mmss: '02:30' } })
 await nextState()
