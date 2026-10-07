@@ -101,6 +101,23 @@ export function updateActions(self) {
 				return self.command(`/api/preset/row?name=${q(await name(a.options.name))}&n=${n}`)
 			},
 		},
+		/* Swing a graphic from one court to another — the big-screen case.
+		 * Mark: one saved design, pointed at whichever court is in play. A button per court means
+		 * the operator never opens the Library mid-match. */
+		preset_court: {
+			name: 'Library preset: point it at a court',
+			options: [
+				presetField,
+				{
+					type: 'dropdown', label: 'Court', id: 'court',
+					default: boards[0]?.id ?? '',
+					choices: boards, allowCustom: true,
+					tooltip: 'Only affects fields written without a court name, like [score1]',
+				},
+			],
+			callback: async (a) =>
+				self.command(`/api/preset/court?name=${q(await name(a.options.name))}&court=${q(await name(a.options.court))}`),
+		},
 		// What happens BETWEEN one row and the next. Stepping a deck does not need this — the
 		// style is a property of the deck — but setting it from a button lets one section of a
 		// show dip to black while the rest cross fades.
