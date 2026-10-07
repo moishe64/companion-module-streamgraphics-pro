@@ -270,6 +270,33 @@ export function updateActions(self) {
 			options: [boardField],
 			callback: async (a) => self.command(`/api/scoreboard/restart?name=${q(await name(a.options.name))}`),
 		},
+		/* Games won ignores the game being played, and the LAST game has no next game to start —
+		   so without this a 2-1 win shows as 1-1 for ever. "End" and "Back to live" are separate
+		   choices rather than a blind toggle: a key that toggles cannot be trusted at the one
+		   moment it matters, and a double tap would put a final 2-1 back to 1-1 on air. */
+		sb_final: {
+			name: 'Scoreboard: match final / back to live',
+			options: [
+				boardField,
+				{
+					type: 'dropdown',
+					label: 'Set to',
+					id: 'on',
+					default: '1',
+					choices: [
+						{ id: '1', label: 'Match final (the last game counts)' },
+						{ id: '0', label: 'Back to live' },
+						{ id: 'toggle', label: 'Toggle' },
+					],
+				},
+			],
+			callback: async (a) => {
+				const v = String(a.options.on ?? '1')
+				return self.command(
+					`/api/scoreboard/final?name=${q(await name(a.options.name))}` + (v === 'toggle' ? '' : `&on=${v}`)
+				)
+			},
+		},
 
 		// ---- Baseball / softball ----
 		bl_run: {
