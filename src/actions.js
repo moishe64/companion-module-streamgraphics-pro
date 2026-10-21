@@ -197,6 +197,51 @@ export function updateActions(self) {
 		},
 
 		// ---- Presenter timer ----
+		/* ---- notes to the presenter ----
+		 * Mark: "just notes person to person… even flash it if I NEED to get the presenter's
+		 * attention." A Stream Deck key is the right home for the ones he sends every show —
+		 * "two minutes", "wrap up" — because reaching for a keyboard is the delay this removes.
+		 * ⛔ These reach the PRESENTER VIEW only. The timer output that feeds OBS never shows a
+		 *    note, so no key here can put words on the stream. */
+		note_send: {
+			name: 'Presenter note: send',
+			options: [
+				{ type: 'textinput', label: 'Note', id: 'text', default: '', useVariables: true,
+				  tooltip: 'What the presenter should read. Variables work, so a key can send a countdown or a cue.' },
+				{ type: 'checkbox', label: 'Flash it (get their attention)', id: 'flash', default: false },
+			],
+			callback: async (a) => {
+				const text = await self.parseVariablesInString(String(a.options.text ?? ''))
+				if (!text.trim()) return false    // ⛔ an empty key press is not "clear" — there is a Clear action
+				const ok = await self.command(`/api/timer/note?text=${q(text)}`)
+				// 🔑 Send THEN flash, in that order: flashing the previous note would point at the wrong words.
+				if (ok && a.options.flash) return self.command('/api/timer/noteflash?on=1')
+				return ok
+			},
+		},
+		note_clear: {
+			name: 'Presenter note: clear',
+			options: [],
+			callback: async () => self.command('/api/timer/noteclear'),
+		},
+		note_flash: {
+			name: 'Presenter note: flash / stop flashing',
+			options: [
+				{
+					type: 'dropdown', label: 'Set to', id: 'on', default: '1',
+					choices: [
+						{ id: '1', label: 'Flash it' },
+						{ id: '0', label: 'Stop flashing' },
+						{ id: 'toggle', label: 'Toggle' },
+					],
+				},
+			],
+			callback: async (a) => {
+				const v = String(a.options.on ?? '1')
+				return self.command('/api/timer/noteflash' + (v === 'toggle' ? '' : `?on=${v}`))
+			},
+		},
+
 		timer_start: { name: 'Timer: start', options: [], callback: async () => self.command('/api/timer/start') },
 		timer_pause: { name: 'Timer: pause', options: [], callback: async () => self.command('/api/timer/pause') },
 		timer_reset: { name: 'Timer: reset', options: [], callback: async () => self.command('/api/timer/reset') },
