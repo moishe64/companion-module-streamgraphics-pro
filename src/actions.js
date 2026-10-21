@@ -80,21 +80,28 @@ export function updateActions(self) {
 			options: [],
 			callback: async () => self.command('/api/preset/alloff'),
 		},
+		/* 🔑 "row" AND "slide" in every one of these names.
+		 * A PowerPoint deck is an ordinary Library preset with one ROW per slide, so these three
+		 * have stepped a deck since the day decks existed. Mark could not tell: "I don't remember
+		 * if this was added to bit focus companion." Nothing in Companion's action list contained
+		 * the word slide, so the button he was hunting for looked like it was missing.
+		 * ⛔ Do not split these into separate deck actions — same endpoint, same behaviour; two
+		 *    names for one thing is how an operator ends up wondering which is the right one. */
 		preset_next: {
-			name: 'Library preset: next spreadsheet row',
+			name: 'Library preset: next slide / spreadsheet row',
 			options: [presetField],
 			callback: async (a) => self.command(`/api/preset/next?name=${q(await name(a.options.name))}`),
 		},
 		preset_prev: {
-			name: 'Library preset: previous spreadsheet row',
+			name: 'Library preset: previous slide / spreadsheet row',
 			options: [presetField],
 			callback: async (a) => self.command(`/api/preset/prev?name=${q(await name(a.options.name))}`),
 		},
 		preset_row: {
-			name: 'Library preset: go to spreadsheet row',
+			name: 'Library preset: go to a slide / spreadsheet row',
 			options: [
 				presetField,
-				{ type: 'textinput', label: 'Row number (1 = first)', id: 'n', default: '1', useVariables: true },
+				{ type: 'textinput', label: 'Slide / row number (1 = first)', id: 'n', default: '1', useVariables: true },
 			],
 			callback: async (a) => {
 				const n = parseInt(await self.parseVariablesInString(String(a.options.n ?? '1')), 10) || 1
